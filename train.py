@@ -8,8 +8,8 @@ from tqdm import tqdm
 import numpy as np
 
 DEVICE_ID = 'cuda'
-EPOCHS = 100
-LR = .01
+EPOCHS = 200
+LR = .0005
 
 transform = transforms.Compose(
     [
@@ -22,18 +22,21 @@ transform = transforms.Compose(
     ]
 )
 
-dataset = AnalyticDataset(1000, transform=transform)
+dataset = AnalyticDataset(10000, transform=transform)
 
-lengths = (900, 100)
+lengths = (9000, 1000)
 trainset, valset = random_split(dataset, lengths)
 
-trainloader = DataLoader(trainset, batch_size=200, num_workers=6)
-valloader = DataLoader(valset, batch_size=100)
+trainloader = DataLoader(trainset, batch_size=100, num_workers=6)
+valloader = DataLoader(valset, batch_size=1000)
 
 model = FullyConvolutionLogistic(100)
+
 model.to(DEVICE_ID)
 optim = torch.optim.Adam(model.parameters(), lr=LR)
 loss_fn = nn.L1Loss()
+# loss_fn = nn.L1Loss(reduction='none')
+# weights = torch.exp(-torch.arange(0, 100)).to(DEVICE_ID)
 
 best_loss = np.Inf
 model.train()
@@ -45,6 +48,7 @@ for epoch in range(EPOCHS):
         optim.zero_grad()
 
         pred = model(in_batch)
+        # loss = (loss_fn(pred, out_batch) * weights).sum()
         loss = loss_fn(pred, out_batch)
         loss.backward()
         optim.step()

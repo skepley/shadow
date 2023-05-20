@@ -11,6 +11,8 @@ class FullyConvolutionLogistic(nn.Module):
         self.conv3 = nn.Conv1d(16, 32, 5, 5)
 
         self.fc2 = nn.Linear(32 * output_size, output_size)
+        nn.init.constant_(self.fc2.weight, 0)
+        nn.init.constant_(self.fc2.bias, 0)
         self.activation = nn.ReLU()
 
     def forward(self, x):

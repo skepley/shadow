@@ -19,3 +19,23 @@ def logistic_taylor_orbit(x_0, N, tau=1.0):
         taylorCoefficient = np.append(taylorCoefficient, tNext)
 
     return taylorCoefficient
+
+# domain parameter definitions
+def rescale(sequence, tau):
+    """Generic function for rescaling a given parameterization sequence for an orbit of
+    x' = f(x) into a parameterization of x' = tau*f(x)."""
+
+    if tau == 1:
+        return sequence
+    else:
+        powerVector = np.array([pow(tau, j) for j in range(len(sequence))])
+        return sequence * powerVector
+
+
+def tau_from_last_coef(sequence, mu=np.finfo(float).eps):
+    """Set domain parameter by last coefficient decay. Input is a sequence computed with domain parameter equal to 1.
+    Returns the domain parameter rescaling which forces the last coefficient norm to be equal to mu."""
+
+    maxIdx = np.max(np.nonzero(sequence))  # index of the last nonzero coefficient
+    tau = (mu / np.abs(sequence[maxIdx])) ** (1 / maxIdx)
+    return tau
